@@ -1,3 +1,7 @@
+/*
+ * POJ 1000
+ */
+
 #include <cstdio>
 
 int main() {

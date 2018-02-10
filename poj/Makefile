@@ -1,4 +1,4 @@
-SOURCE_DIR := poj
+SOURCE_DIR := src
 TARGET_DIR := target
 
 SOURCES := $(wildcard $(SOURCE_DIR)/*.cpp)

@@ -3,9 +3,13 @@
  *
  * Use searching for each factor of the total length.
  *
- * Using greedy strategy to select sticks.
+ * Using greedy strategy to select sticks. Search from
+ * longer ones.
+ * Note that all substicks MUST fits into some combination.
  * Using 2 pruning:
- * 1. if the first selected stick failed, then all fail;
+ * 1. if the first selected stick failed, then all fail,
+ *    for we can't find a valid combination for the longest
+ *    substick;
  * 2. if a complete combination is built and failed in
  *    the following dividable call, then fail, for we
  *    choose longer sticks first, and a longer stick can
@@ -33,6 +37,7 @@ bool dividable(int currLen, int originLen, int startLen, int restNum) {
                 return true;
             sticks[i]++;
             i--;
+            // the first selected stick fails
             if (currLen == 0)
                 return false;
         }

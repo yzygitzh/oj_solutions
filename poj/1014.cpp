@@ -6,9 +6,11 @@
  *
  * Using binary optimization to prevent TLE
  * The same marbles can be represented using "the power of 2"'s
- * O(N * log(K))
+ * e.g.: 31 of 1-marbles, represented by 1 + 2 + 4 + 8 + 16
  *
- * Using 1-dim array to satisfy memory limit
+ * complexity: O(N * log(K))
+ *
+ * Using 1-dim array to satisfy memory limit (flatN instead of N)
  */
 
 #include <cstdio>

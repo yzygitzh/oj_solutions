@@ -1,5 +1,5 @@
 /*
- * POJ 1011
+ * POJ 1011 - Sticks
  *
  * Use searching for each factor of the total length.
  *

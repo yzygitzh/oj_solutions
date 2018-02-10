@@ -1,5 +1,5 @@
 /*
- * POJ 1014
+ * POJ 1014 - Dividing
  *
  * A backpack problem with
  * total volume N = sum(ni) / 2

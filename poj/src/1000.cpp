@@ -1,5 +1,5 @@
 /*
- * POJ 1000
+ * POJ 1000 - A+B Problem
  */
 
 #include <cstdio>

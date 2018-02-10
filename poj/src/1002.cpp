@@ -1,5 +1,5 @@
 /*
- * POJ 1002
+ * POJ 1002 - 487-3279
  */
 
 #include <cstdio>

@@ -1,5 +1,5 @@
 /*
- * POJ 1001
+ * POJ 1001 - Exponentiation
  *
  * printReal is the most tricky part, dealing with pre/post zeros
  */

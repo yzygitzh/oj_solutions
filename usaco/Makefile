@@ -4,7 +4,7 @@ TARGET_DIR := target
 SOURCES := $(wildcard $(SOURCE_DIR)/*.cpp)
 TARGETS := $(patsubst $(SOURCE_DIR)/%.cpp,USACO%,$(SOURCES))
 
-CC := g++
+CC := g++ -std=c++98
 
 all: clean build
 

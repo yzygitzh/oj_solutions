@@ -1,0 +1,6 @@
+- Before submit
+    - Check corner cases
+    - Check initialization
+    - Mind illegal output (redundant space, char buffer without initialization, etc.)
+    - Mind buffer/stack/numeric overflow
+    - Mind special output ("NONE", "IMPOSSIBLE", etc.)

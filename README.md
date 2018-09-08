@@ -1,2 +1,2 @@
-POJ solutions and documents
+OJ solutions and documents
 

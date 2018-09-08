@@ -4,3 +4,4 @@
     - Mind illegal output (redundant space, char buffer without initialization, etc.)
     - Mind buffer/stack/numeric overflow
     - Mind special output ("NONE", "IMPOSSIBLE", etc.)
+    - Mind unsigned arithmetic, e.g. x-y never < 0, etc.

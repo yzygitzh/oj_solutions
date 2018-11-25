@@ -1,10 +1,3 @@
-/*
- * F[M]: Number of unique subsequences ended with M-th element
- * Find the largest N such that N < M and F[N] == F[M]
- * Then subsequences ended with element between N and M can be
- * extended by M-th element.
- */
-
 class Solution {
 public:
     int distinctSubseqII(string S) {

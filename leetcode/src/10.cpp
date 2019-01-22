@@ -36,17 +36,15 @@ public:
             for (int pIdx = 1; pIdx <= newPLen; pIdx++) {
                 F[sIdx % 2][pIdx] = 0;
                 
-                if (isStar[pIdx - 1]) {
-                    F[sIdx % 2][pIdx] |= F[sIdx % 2][pIdx - 1];
+                if (newP[pIdx - 1] == s[sIdx - 1] || newP[pIdx - 1] == '.') {
+                    F[sIdx % 2][pIdx] |= F[(sIdx - 1) % 2][pIdx - 1];
                 }
 
-                if (('a' <= newP[pIdx - 1] && 'z' >= newP[pIdx - 1] &&
-                     newP[pIdx - 1] == s[sIdx - 1]) ||
-                    newP[pIdx - 1] == '.') {
-                    if (isStar[pIdx - 1]) {
+                if (isStar[pIdx - 1]) {
+                    F[sIdx % 2][pIdx] |= F[sIdx % 2][pIdx - 1];
+                    if (newP[pIdx - 1] == s[sIdx - 1] || newP[pIdx - 1] == '.') {
                         F[sIdx % 2][pIdx] |= F[(sIdx - 1) % 2][pIdx];
                     }
-                    F[sIdx % 2][pIdx] |= F[(sIdx - 1) % 2][pIdx - 1];
                 }
             }
         }

@@ -1,34 +1,24 @@
 class Solution {
 public:
     bool isValidSerialization(string preorder) {
-        if (preorder == "#") return true;
-        int pLen = preorder.length();
-        int pIdx = 0;
-        vector<int> seenStack;
-        while (pIdx < pLen) {
-            if (preorder[pIdx] == '#') {
-                if (seenStack.size() > 0) {
-                    int stackIdx = seenStack.size() - 1;
-                    if (seenStack[stackIdx] == 0) {
-                        seenStack[stackIdx] = 1;
-                    } else if (seenStack[stackIdx] == 1) {
-                        while (seenStack.size() > 0 && *seenStack.rbegin() == 1) {
-                            seenStack.pop_back();
-                        }
-                        if (seenStack.size() > 0) {
-                            *seenStack.rbegin() = 1;
-                        }
-                    }
-                } else {
-                    return false;
-                }
-            } else {
-                seenStack.push_back(0);
+        int capacity = 1;
+        preorder += ',';
+        int idx = 0;
+        int preorderLen = preorder.length();
+        while (idx < preorderLen) {
+            while (preorder[idx] != ',') {
+                idx++;
             }
-            while (pIdx < pLen && preorder[pIdx] != ',') pIdx++;
-            pIdx++;
-            if (seenStack.size() == 0) break;
+            if (preorder[idx - 1] == '#') {
+                capacity--;
+                if (capacity < 0) return false;
+            } else {
+                capacity--;
+                if (capacity < 0) return false;
+                capacity += 2;
+            }
+            idx++;
         }
-        return seenStack.size() == 0 && pIdx >= pLen;
+        return capacity == 0;
     }
 };

@@ -9,39 +9,17 @@
 class Solution {
 public:
     ListNode* oddEvenList(ListNode* head) {
-        if (head == NULL || head->next == NULL || head->next->next == NULL) {
-            return head;
+        // invariant: grouped list + origin list
+        if (head == nullptr || head->next == nullptr) return head;
+        ListNode *oddHead = head, *evenHead = head->next;
+        ListNode *oddTail = oddHead, *evenTail = evenHead;
+        while (evenTail != nullptr && evenTail->next != nullptr) {
+            oddTail->next = evenTail->next;
+            evenTail->next = evenTail->next->next;
+            oddTail = oddTail->next;
+            oddTail->next = evenHead;
+            evenTail = evenTail->next;
         }
-        ListNode *oddHead = NULL, *oddTail = NULL;
-        ListNode *evenHead = NULL, *evenTail = NULL;
-        
-        ListNode *pCurr = head;
-        int idx = 1;
-        while (pCurr != NULL) {
-            ListNode *pNext = pCurr->next;
-            if (idx % 2) {
-                if (oddHead == NULL) {
-                    oddHead = oddTail = pCurr;
-                } else {
-                    oddTail->next = pCurr;
-                    oddTail = pCurr;
-                }
-                oddTail->next = NULL;
-            } else {
-                if (evenHead == NULL) {
-                    evenHead = evenTail = pCurr;
-                } else {
-                    evenTail->next = pCurr;
-                    evenTail = pCurr;
-                }
-                evenTail->next = NULL;
-            }
-            pCurr = pNext;
-            idx++;
-        }
-        
-        // merge odd/even lists
-        oddTail->next = evenHead;
         return oddHead;
     }
 };

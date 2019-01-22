@@ -9,27 +9,28 @@
  */
 class Solution {
 public:
+    unordered_map<int, int> valToIdxIn;
+    
     TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
-        if (preorder.size() == 0) return nullptr;
-        // root is preorder[0]
-        int rootInorderIdx = 0;
-        while (inorder[rootInorderIdx] != preorder[0]) rootInorderIdx++;
-
-        TreeNode *root = new TreeNode(preorder[0]);
-        vector<int> leftPre, leftIn, rightPre, rightIn;
-        int preIdx = 1;
-        
-        for (int i = 0; i < rootInorderIdx; i++) {
-            leftIn.push_back(inorder[i]);
-            leftPre.push_back(preorder[preIdx++]);
+        int orderLen = preorder.size();
+        for (int i = 0; i < orderLen; i++) {
+            valToIdxIn[inorder[i]] = i;
         }
-        for (int i = rootInorderIdx + 1; i < inorder.size(); i++) {
-            rightIn.push_back(inorder[i]);
-            rightPre.push_back(preorder[preIdx++]);
-        }
-        
-        root->left = buildTree(leftPre, leftIn);
-        root->right = buildTree(rightPre, rightIn);
+        return construct(preorder, 0, orderLen - 1,
+                         inorder, 0, orderLen - 1);
+    }
+    
+    TreeNode* construct(vector<int>& preorder, int pre1, int pre2,
+                        vector<int>& inorder, int in1, int in2) {
+        if (pre1 > pre2 || in1 > in2) return nullptr;
+        int rootVal = preorder[pre1];
+        int rootIdxIn = valToIdxIn[rootVal];
+        int leftLen = rootIdxIn - in1, rightLen = in2 - rootIdxIn;
+        TreeNode *root = new TreeNode(rootVal);
+        root->left = construct(preorder, pre1 + 1, pre1 + leftLen,
+                               inorder, in1, rootIdxIn - 1);
+        root->right = construct(preorder, pre1 + leftLen + 1, pre2,
+                                inorder, rootIdxIn + 1, in2);
         return root;
     }
 };

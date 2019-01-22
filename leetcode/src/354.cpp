@@ -1,42 +1,41 @@
 class Solution {
 public:
-    class CustomCmp {
-    public:
-        bool operator() (const pair<int, int> &i, const pair<int, int> &j) const {
-            if (i.first == j.first)
-                return i.second < j.second;
-            return i.first < j.first;
-        }
-    };
+    static bool envSort(const pair<int, int>& a, const pair<int, int>& b) {
+        if (a.first != b.first) return a.first < b.first;
+        else return a.second > b.second;
+    }
     
-    int maxEnvelopes(vector<pair<int, int>>& _envelopes) {
-        // build graph than do dfs with memo
-        // k-d tree ?
-
-        int _envelopesLen = _envelopes.size();
-        if (_envelopesLen == 0) return 0;
+    int maxEnvelopes(vector<pair<int, int>>& envelopes) {
+        int envLen = envelopes.size();
+        if (envLen == 0) return 0;
         
-        set<pair<int, int>> uniqEnvelopes(_envelopes.begin(), _envelopes.end());
-        vector<pair<int, int>> envelopes(uniqEnvelopes.begin(), uniqEnvelopes.end());
-        int envelopesLen = envelopes.size();
-        sort(envelopes.begin(), envelopes.end(), CustomCmp());
-
+        sort(envelopes.begin(), envelopes.end(), envSort);
+        
+        vector<int> seqLenToEnd(envLen + 1, -1);
+        seqLenToEnd[1] = envelopes[0].second;
         int maxLen = 1;
-        vector<int> maxLenArray(envelopesLen, 1);
-        for (int i = 0; i < envelopesLen; i++) {
-            for (int j = i - 1; j >= 0; j--) {
-                if (envelopes[i].first > envelopes[j].first &&
-                    envelopes[i].second > envelopes[j].second) {
-                    if (maxLenArray[i] < maxLenArray[j] + 1) {
-                        maxLenArray[i] = maxLenArray[j] + 1;
-                        if (maxLen < maxLenArray[i]) {
-                            maxLen = maxLenArray[i];
-                        }
-                    }
+        
+        for (int i = 1; i < envLen; i++) {
+            int left = 1, right = maxLen;
+            while (left + 1 < right) {
+                int mid = (left + right) / 2;
+                if (seqLenToEnd[mid] <= envelopes[i].second) {
+                    left = mid;
+                } else {
+                    right = mid;
                 }
             }
+            if (seqLenToEnd[left] > envelopes[i].second) {
+                seqLenToEnd[left] = envelopes[i].second;
+            } else if (seqLenToEnd[right] > envelopes[i].second &&
+                       envelopes[i].second > seqLenToEnd[left]) {
+                seqLenToEnd[right] = envelopes[i].second;
+            } else if (seqLenToEnd[maxLen] < envelopes[i].second &&
+                       maxLen + 1 <= envLen) {
+                maxLen++;
+                seqLenToEnd[maxLen] = envelopes[i].second;
+            }
         }
-
         return maxLen;
     }
 };

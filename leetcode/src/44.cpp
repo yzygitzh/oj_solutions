@@ -4,27 +4,30 @@ public:
         int sLen = s.length();
         int pLen = p.length();
         
-        // matchSP[M][N]: M-length prefix of s matches N-length prefix of p
-        // matchSP[M][N] = p[N-1] == '?' -> matchSP[M-1][N-1]
-        //                 p[N-1] == '*' -> OR(matchSP[1...M][N-1])
-        //                 p[N-1] == 'a-z' -> matchSP[M-1][N-1] AND s[M-1] == p[N-1]
+        vector<vector<int> > F(2, vector<int>(pLen + 1, 0));
         
-        vector<vector<int> > matchSP(sLen + 1, vector<int>(2, 0));
-        matchSP[0][0] = 1; // '' matches '' but not others
+        F[0][0] = 1;
         for (int i = 1; i <= pLen; i++) {
-            matchSP[0][i % 2] = p[i - 1] == '*' ? matchSP[0][(i - 1) % 2] : 0;
-            int starMatched = matchSP[0][(i - 1) % 2];
-            for (int j = 1; j <= sLen; j++) {
-                starMatched |= matchSP[j][(i - 1) % 2];
-                if (p[i - 1] == '?') {
-                    matchSP[j][i % 2] = matchSP[j - 1][(i - 1) % 2];
-                } else if (p[i - 1] == '*') {
-                    matchSP[j][i % 2] = starMatched;
-                } else {
-                    matchSP[j][i % 2] = s[j - 1] == p[i - 1] ? matchSP[j - 1][(i - 1) % 2] : 0;
+            if (p[i - 1] == '*') F[0][i] = 1;
+            else break;
+        }
+
+        for (int sIdx = 1; sIdx <= sLen; sIdx++) {
+            F[sIdx % 2][0] = 0;
+            for (int pIdx = 1; pIdx <= pLen; pIdx++) {
+                F[sIdx % 2][pIdx] = 0;
+
+                if (p[pIdx - 1] == s[sIdx - 1] || p[pIdx - 1] == '?') {
+                    F[sIdx % 2][pIdx] |= F[(sIdx - 1) % 2][pIdx - 1];
+                }
+
+                if (p[pIdx - 1] == '\*') {
+                    F[sIdx % 2][pIdx] |= F[sIdx % 2][pIdx - 1];
+                    F[sIdx % 2][pIdx] |= F[(sIdx - 1) % 2][pIdx];
                 }
             }
         }
-        return matchSP[sLen][pLen % 2];
+        
+        return F[sLen % 2][pLen] == 1;
     }
 };

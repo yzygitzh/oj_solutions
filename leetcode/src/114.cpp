@@ -9,31 +9,26 @@
  */
 class Solution {
 public:
-    struct ListInfo {
-        TreeNode *head, *tail;
-    };
     void flatten(TreeNode* root) {
-        convert(root);
-    }
-    ListInfo convert(TreeNode* root) {
-        ListInfo result;
-        result.head = result.tail = nullptr;
-        if (root == nullptr) return result;
-        ListInfo leftResult = convert(root->left);
-        ListInfo rightResult = convert(root->right);
-        
-        root->left = root->right = nullptr;
-        result.head = result.tail = root;
-        // try insert left sequence
-        if (leftResult.head != nullptr) {
-            result.tail->right = leftResult.head;
-            result.tail = leftResult.tail;
+        TreeNode *tmp = root;
+        while (root != nullptr) {
+            if (root->left != nullptr) {
+                tmp = root->left;
+                while (tmp->right != root && tmp->right != nullptr) {
+                    tmp = tmp->right;
+                }
+                if (tmp->right == root) {
+                    tmp->right = root->right;
+                    root->right = root->left;
+                    root->left = nullptr;
+                    root = tmp->right;
+                } else {
+                    tmp->right = root;
+                    root = root->left;
+                }
+            } else {
+                root = root->right;
+            }
         }
-        // then try right
-        if (rightResult.head != nullptr) {
-            result.tail->right = rightResult.head;
-            result.tail = rightResult.tail;
-        }
-        return result;
     }
 };

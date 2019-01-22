@@ -9,29 +9,34 @@
 class Solution {
 public:
     ListNode* reverseBetween(ListNode* head, int m, int n) {
-        if (m == n || head == NULL) return head;
-        ListNode *beforeRev = NULL, *afterRev = NULL;
         int idx = 1;
-        ListNode *pCurr = head, *pLast = NULL, *pM, *pN;
-        while (pCurr != NULL) {
-            ListNode *pNext = pCurr->next;
-            if (idx > m && idx <= n) {
-                pCurr->next = pLast;
+        ListNode *result = head, *before = nullptr, *oldHead;
+        ListNode *beforeP1, *p1, *p2;
+        while (head != nullptr) {
+            if (m == idx) {
+                beforeP1 = before;
+                p1 = head;
             }
-            if (idx == m - 1) beforeRev = pCurr;
-            if (idx == m) pM = pCurr;
-            if (idx == n + 1) afterRev = pCurr;
-            if (idx == n) pN = pCurr;
-            pLast = pCurr;
-            pCurr = pNext;
+            if (m <= idx && idx <= n) {
+                oldHead = head;
+                head = head->next;
+                oldHead->next = before;
+                before = oldHead;
+            } else {
+                before = head;
+                head = head->next;
+            }
+            if (n == idx) {
+                p2 = oldHead;
+                if (beforeP1 != nullptr) {
+                    beforeP1->next = p2;
+                } else {
+                    result = p2;
+                }
+                p1->next = head;
+            }
             idx++;
         }
-        if (beforeRev != NULL){
-            beforeRev->next = pN;
-        } else {
-            head = pN;
-        }
-        pM->next = afterRev;
-        return head;
+        return result;
     }
 };

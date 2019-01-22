@@ -9,42 +9,40 @@
 class Solution {
 public:
     ListNode* reverseKGroup(ListNode* head, int k) {
-        if (head == NULL || head->next == NULL || k == 1) return head;
-        ListNode *beforeSeg, *segStart, *segEnd;
-        beforeSeg = segStart = head;
+        ListNode *result = head, *before = nullptr;
         while (true) {
-            segEnd = segStart;
-            bool stop = false;
-            for (int i = 0; i < k - 1; i++) {
-                segEnd = segEnd->next;
-                if (segEnd == NULL) {
-                    stop = true;
-                    break;
-                }
-            }
-            if (stop) break;
-            ListNode *nextSeg = segEnd->next;
-            ListNode *pOld = segStart;
-            ListNode *pCurr = segStart->next;
-            for (int i = 0; i < k - 1; i++) {
-                ListNode *pNext = pCurr->next;
-                pCurr->next = pOld;
-                pOld = pCurr;
-                pCurr = pNext;
-            }
-            
-            // make beforeSeg points to segEnd
-            // and segStart points to afterSeg
-            if (beforeSeg == head) {
-                head = segEnd;
+            ListNode *p1 = head, *p2 = nextK(head, k - 1);
+            if (p2 == nullptr) break;
+            head = p2->next;
+            p2->next = nullptr;
+            reverseList(p1);
+            if (before == nullptr) {
+                result = p2;
             } else {
-                beforeSeg->next = segEnd;    
+                before->next = p2;
             }
-            beforeSeg = segStart;
-            segStart->next = nextSeg;
-            if (segStart->next == NULL) break;
-            else segStart = segStart->next;
+            p1->next = head;
+            before = p1;
+        }
+        return result;
+    }
+    
+    ListNode* nextK(ListNode *head, int k) {
+        while (k && head != nullptr) {
+            head = head->next;
+            k--;
         }
         return head;
+    }
+    
+    ListNode* reverseList(ListNode *head) {
+        ListNode *before = nullptr, *oldHead = nullptr;
+        while (head != nullptr) {
+            oldHead = head;
+            head = head->next;
+            oldHead->next = before;
+            before = oldHead;
+        }
+        return oldHead;
     }
 };

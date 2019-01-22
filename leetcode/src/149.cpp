@@ -9,45 +9,48 @@
  */
 class Solution {
 public:
-    bool isOnTheSameLine(Point &a, Point &b, Point &c) {
-        long long x1 = (long long)a.x - (long long)b.x;
-        long long y1 = (long long)a.y - (long long)b.y;
-        long long x2 = (long long)a.x - (long long)c.x;
-        long long y2 = (long long)a.y - (long long)c.y;
-        long long crossProd = x1 * y2 - x2 * y1;
-        return crossProd == 0;
+    int getAbs(int x) {
+        return x < 0 ? -x : x;
     }
-        
+    
+    int gcd(int a, int b) {
+        if (a == 0) return max(1, b);
+        if (b == 0) return max(1, a);
+        return gcd(b, a % b);
+    }
+    
+    pair<int, int> normalizedVec(Point a, Point b) {
+        int deltaX = a.x - b.x;
+        int deltaY = a.y - b.y;
+        if (deltaX < 0 || deltaX == 0 && deltaY < 0) {
+            deltaX = -deltaX;
+            deltaY = -deltaY;
+        }
+        int divider = gcd(getAbs(deltaX), getAbs(deltaY));
+        deltaX /= divider;
+        deltaY /= divider;
+        return make_pair(deltaX, deltaY);
+    }
+    
     int maxPoints(vector<Point>& points) {
-        int pointsLen = points.size();
-        map<pair<int, int>, int> pointCnt;
-        vector<Point> uniqPoints;
-        for (int i = 0; i < pointsLen; i++) {
-            pointCnt[make_pair(points[i].x, points[i].y)]++;
-        }
-        for (map<pair<int, int>, int>::iterator itr = pointCnt.begin();
-             itr != pointCnt.end(); ++itr) {
-            uniqPoints.push_back(Point(itr->first.first, itr->first.second));
-        }
-        int uniqPointsLen = uniqPoints.size();
-        if (uniqPointsLen == 1) return pointsLen;
-
-        // for each uniqPoint pair, check other points
-        int maxPoints = 0;
-        for (int i = 0; i < uniqPointsLen; i++) {
-            for (int j = i + 1; j < uniqPointsLen; j++) {
-                Point p1 = uniqPoints[i], p2 = uniqPoints[j];
-                int currPoints = pointCnt[make_pair(p1.x, p1.y)] +
-                                 pointCnt[make_pair(p2.x, p2.y)];
-                for (int k = j + 1; k < uniqPointsLen; k++) {
-                    Point p3 = uniqPoints[k];
-                    if (isOnTheSameLine(p1, p2, p3)) {
-                        currPoints += pointCnt[make_pair(p3.x, p3.y)];
-                    }
+        int maxCnt = 0;
+        for (auto itr1 = points.begin(); itr1 != points.end(); ++itr1) {
+            map<pair<int, int>, int> pointCnt;
+            int selfPnts = 0;
+            for (auto itr2 = points.begin(); itr2 != points.end(); ++itr2) {
+                if (itr1->x == itr2->x && itr1->y == itr2->y) {
+                    selfPnts++;
+                    continue;
                 }
-                if (currPoints > maxPoints) maxPoints = currPoints;
+                pair<int, int> vec = normalizedVec(*itr1, *itr2);
+                pointCnt[vec]++;
+            }
+            maxCnt = max(maxCnt, selfPnts);
+            for (auto itr2 = pointCnt.begin();
+                 itr2 != pointCnt.end(); ++itr2) {
+                maxCnt = max(maxCnt, selfPnts + itr2->second);
             }
         }
-        return maxPoints;
+        return maxCnt;
     }
 };

@@ -1,56 +1,37 @@
 class Solution {
 public:
-    int getMax(int a, int b) {
-        return a > b ? a : b;
-    }
-    
     int candy(vector<int>& ratings) {
+        // find all peaks
         int ratingsLen = ratings.size();
-        if (ratingsLen <= 1) return ratingsLen;
-
-        priority_queue<pair<int, int>, vector<pair<int, int> >,
-                       greater<pair<int, int> > > ratingHeap;
-        for (int i = 0; i < ratingsLen; i++) {
-            ratingHeap.push(make_pair(ratings[i], i));
-        }
-        
-        vector<int> candies(ratingsLen, 0);
-        vector<int> given(ratingsLen, 0);
-        
-        while (ratingHeap.size() > 0) {
-            pair<int, int> top = ratingHeap.top();
-            ratingHeap.pop();
-            if (given[top.second]) continue;
-            given[top.second] = 1;
-            candies[top.second] = 1;
-            // expand to left
-            int leftOffset = 1;
-            while (top.second - leftOffset >= 0 &&
-                   ratings[top.second - leftOffset] >
-                   ratings[top.second - leftOffset + 1]) {
-                candies[top.second - leftOffset] = getMax(
-                    candies[top.second - leftOffset],
-                    candies[top.second - leftOffset + 1] + 1
-                );
-                given[top.second - leftOffset] = 1;
-                leftOffset++;
-            }
-            // expand to right
-            int rightOffset = 1;
-            while (top.second + rightOffset < ratingsLen &&
-                   ratings[top.second + rightOffset] >
-                   ratings[top.second + rightOffset - 1]) {
-                candies[top.second + rightOffset] = getMax(
-                    candies[top.second + rightOffset],
-                    candies[top.second + rightOffset - 1] + 1
-                );
-                given[top.second + rightOffset] = 1;
-                rightOffset++;
-            }
-        }
-        
         int candySum = 0;
-        for (int i = 0; i < ratingsLen; i++) candySum += candies[i];
+        
+        for (int i = 0; i < ratingsLen; i++) {
+            // invariant: need to find a peak
+            int upLen = 0, downLen = 0;
+            
+            if (i > 0 && ratings[i] > ratings[i - 1]) {
+                candySum -= 1;
+                upLen++;
+            }
+
+            // find going up
+            while (i + 1 < ratingsLen &&
+                   ratings[i] < ratings[i + 1]) {
+                upLen++;
+                i++;
+            }
+            
+            // find going down
+            while (i + 1 < ratingsLen &&
+                   ratings[i] > ratings[i + 1]) {
+                downLen++;
+                i++;
+            }
+            
+            candySum += (upLen + 1) * upLen / 2 + (downLen + 1) * downLen / 2;
+            candySum += max(upLen + 1, downLen + 1);
+        }
+        
         return candySum;
     }
 };

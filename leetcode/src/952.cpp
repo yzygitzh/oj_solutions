@@ -1,85 +1,54 @@
 class Solution {
 public:
     int largestComponentSize(vector<int>& A) {
-        sort(A.begin(), A.end());
         int ALen = A.size();
-        
-        // gen prime set
-        vector<int> primes{2};
-        map<int, int> prime2idx;
-        prime2idx[2] = 0;
-        for (int i = 3; i <= A[ALen - 1]; i++) {
-            bool isPrime = true;
-            for (int j = 2; j <= (int)sqrt(i); j++) {
-                if (i % j == 0) {
-                    isPrime = false;
-                    break;
+        unordered_map<int, vector<int>> facToIndices;
+        for (int i = 0; i < ALen; i++) {
+            for (int j = 2; A[i] > 1; j++) {
+                if ((long long)j * (long long)j > (long long)A[i]) break;
+                if (!(A[i] % j)) {
+                    facToIndices[j].push_back(i);
+                    while (!(A[i] % j)) A[i] /= j;
                 }
             }
-            if (isPrime) {
-                prime2idx[i] = primes.size();
-                primes.push_back(i);
+            if (A[i] != 1) {
+                facToIndices[A[i]].push_back(i);
             }
         }
-        int primesLen = primes.size();
-        set<int> primeSet(primes.begin(), primes.end());
- 
-        vector<int> parent(primesLen, 0);
-        for (int i = 0; i < primesLen; i++) {
+        
+        vector<int> parent(ALen, 0);
+        for (int i = 0; i < ALen; i++) {
             parent[i] = i;
         }
         
-        map<int, int> APrimeCount; // primeIdx to A's elements that having this prime as its smallest factor
-        for (int i = 0; i < ALen; i++) {
-            int tester = A[i];
-            int primeIdx = 0;
-            int firstPrimeIdx = -1;
-            bool isFirstPrime = true;
-            
-            while (tester != 1) {
-                if (primeSet.count(tester)) {
-                    if (isFirstPrime) {
-                        APrimeCount[prime2idx[tester]]++;
-                    } else {
-                        unionSet(parent, firstPrimeIdx, prime2idx[tester]);
-                    }
-                    break;
-                }
-                if (tester % primes[primeIdx] == 0) {
-                    if (isFirstPrime) {
-                        APrimeCount[primeIdx]++;
-                        firstPrimeIdx = primeIdx;
-                        isFirstPrime = false;
-                    } else {
-                        unionSet(parent, firstPrimeIdx, primeIdx);
-                    }
-                    while (tester % primes[primeIdx] == 0) tester /= primes[primeIdx];
-                }
-                primeIdx++;
+        for (auto itr = facToIndices.begin(); itr != facToIndices.end(); ++itr) {
+            vector<int>& nodes = itr->second;
+            int nodesLen = nodes.size();
+            for (int i = 1; i < nodesLen; i++) {
+                unionSet(nodes[i - 1], nodes[i], parent);
             }
         }
         
-        int maxCount = -1;
-        map<int, int> nodeCount;
-        for (int i = 0; i < primesLen; i++) {
-            nodeCount[findParent(parent, i)] += APrimeCount[i];
-            if (nodeCount[findParent(parent, i)] > maxCount) maxCount = nodeCount[findParent(parent, i)];
+        int maxCnt = 1;
+        unordered_map<int, int> parentCnt;
+        for (int i = 0; i < ALen; i++) {
+            int currParent = findParent(i, parent);
+            parentCnt[currParent]++;
+            maxCnt = max(maxCnt, parentCnt[currParent]);
         }
-        return maxCount;
+        return maxCnt;
     }
     
-    void unionSet(vector<int>& parent, int idx1, int idx2) {
-        int parent1 = findParent(parent, idx1);
-        int parent2 = findParent(parent, idx2);
+    void unionSet(int idx1, int idx2, vector<int>& parent) {
+        int parent1 = findParent(idx1, parent);
+        int parent2 = findParent(idx2, parent);
         parent[parent1] = parent2;
     }
     
-    int findParent(vector<int>& parent, int idx) {
+    int findParent(int idx, vector<int>& parent) {
         if (parent[idx] != idx) {
-            parent[idx] = findParent(parent, parent[idx]);
-            return parent[idx];
-        } else {
-            return idx;
+            parent[idx] = findParent(parent[idx], parent);
         }
+        return parent[idx];
     }
 };

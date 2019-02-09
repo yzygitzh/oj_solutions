@@ -1,5 +1,4 @@
 SOURCE_DIR := src
-TEST_DIR := test
 DATA_DIR := data
 TARGET_DIR := target
 
@@ -11,9 +10,7 @@ clean:
 
 TEMP_%:
 	mkdir -p target
-	$(CC) -o $(TARGET_DIR)/$(patsubst TEMP_%,%,$@).test $(TEST_DIR)/$(patsubst TEMP_%,%,$@).cpp
-	$(TIMEOUT) $(TARGET_DIR)/$(patsubst TEMP_%,%,$@).test < $(DATA_DIR)/$(patsubst TEMP_%,%,$@).in > $(TARGET_DIR)/$(patsubst TEMP_%,%,$@).source.out
-	$(CC) -o $(TARGET_DIR)/$(patsubst TEMP_%,%,$@).source $(SOURCE_DIR)/$(patsubst TEMP_%,%,$@).cpp
-	$(TIMEOUT) $(TARGET_DIR)/$(patsubst TEMP_%,%,$@).source < $(DATA_DIR)/$(patsubst TEMP_%,%,$@).in > $(TARGET_DIR)/$(patsubst TEMP_%,%,$@).test.out 
-	diff -qs $(TARGET_DIR)/$(patsubst TEMP_%,%,$@).source.out $(TARGET_DIR)/$(patsubst TEMP_%,%,$@).test.out 
+	$(CC) -o $(TARGET_DIR)/$(patsubst TEMP_%,%,$@) $(SOURCE_DIR)/$(patsubst TEMP_%,%,$@).cpp
+	$(TIMEOUT) $(TARGET_DIR)/$(patsubst TEMP_%,%,$@) < $(DATA_DIR)/$(patsubst TEMP_%,%,$@).in > $(TARGET_DIR)/$(patsubst TEMP_%,%,$@).out 
+	diff -qs $(TARGET_DIR)/$(patsubst TEMP_%,%,$@).out $(DATA_DIR)/$(patsubst TEMP_%,%,$@).out 
 

@@ -24,39 +24,16 @@ int row, col;
 char maze[50][20];
 int nodes;
 int stars;
-vector<vector<int> > edges(2000);
-vector<int> matched(2000);
-vector<int> visited(2000);
+
+/* TODO: define data structure */
 
 int posToId(pair<int, int> pos) {
     return pos.first * col + pos.second;
 }
 
-bool dfs(int node) {
-    for (vector<int>::iterator itr = edges[node].begin();
-         itr != edges[node].end(); ++itr) {
-        if (visited[*itr]) continue;
-        visited[*itr] = 1;
-        if (matched[*itr] == -1 || dfs(matched[*itr])) {
-            matched[node] = *itr;
-            matched[*itr] = node;
-            return true;
-        }
-    }
-    return false;
-}
-
+/* TODO: implement hungarian algorithm */
 int hungarian() {
-    int result = 0;
-    for (int i = 0; i < nodes; i++) {
-        for (int i = 0; i < nodes; i++) {
-            visited[i] = visited[i + 1000] = 0;
-        }
-        if (matched[i] == -1 && dfs(i)) {
-            result++;
-        }
-    }
-    return result;
+    return 0;
 }
 
 int main() {
@@ -66,11 +43,7 @@ int main() {
         cin >> row >> col;
         nodes = row * col;
         stars = 0;
-        for (int i = 0; i < nodes; i++) {
-            edges[i].clear();
-            edges[i + 1000].clear();
-            matched[i] = matched[i + 1000] = -1;
-        }
+        /* TODO: initialization */
         for (int i = 0; i < row; i++) {
             string inputLine;
             cin >> inputLine;
@@ -80,16 +53,10 @@ int main() {
                 if (maze[i][j] == '*') {
                     stars++;
                     if (j - 1 >= 0 && maze[i][j - 1] == '*') {
-                        edges[posToId(make_pair(i, j))].push_back(posToId(make_pair(i, j - 1)) + 1000);
-                        edges[posToId(make_pair(i, j - 1)) + 1000].push_back(posToId(make_pair(i, j)));
-                        edges[posToId(make_pair(i, j)) + 1000].push_back(posToId(make_pair(i, j - 1)));
-                        edges[posToId(make_pair(i, j - 1))].push_back(posToId(make_pair(i, j)) + 1000);
+                        /* TODO: initialization */
                     }
                     if (i - 1 >= 0 && maze[i - 1][j] == '*') {
-                        edges[posToId(make_pair(i, j))].push_back(posToId(make_pair(i - 1, j)) + 1000);
-                        edges[posToId(make_pair(i - 1, j)) + 1000].push_back(posToId(make_pair(i, j)));
-                        edges[posToId(make_pair(i, j)) + 1000].push_back(posToId(make_pair(i - 1, j)));
-                        edges[posToId(make_pair(i - 1, j))].push_back(posToId(make_pair(i, j)) + 1000);
+                        /* TODO: initialization */
                     }
                 }
             }

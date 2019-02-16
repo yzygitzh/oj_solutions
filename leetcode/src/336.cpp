@@ -1,107 +1,76 @@
+/*
+ * LeetCode 336 Palindrome Pairs
+ * Trie
+ */
+
 class Solution {
 public:
-    class TrieNode {
-    public:
-        TrieNode *next[26];
-        int idx;
-        TrieNode() {
-            for (int i = 0; i < 26; i++) next[i] = nullptr;
-            idx = -1;
-        }
-    };
-    
-    void insertWord(string word, int idx, TrieNode *trieRoot) {
-        int wordLen = word.length();
-        TrieNode *p = trieRoot;
-        for (int i = 0; i < wordLen; i++) {
-            if (p->next[word[i] - 'a'] == nullptr) {
-                p->next[word[i] - 'a'] = new TrieNode();
-            }
-            p = p->next[word[i] - 'a'];
-        }
-        p->idx = idx;
+  class TrieNode {
+  public:
+    TrieNode* next[26];
+    int idx;
+    TrieNode() {
+      for (int i = 0; i < 26; i++) next[i] = nullptr;
+      idx = -1;
     }
-    
-    void freeTrie(TrieNode *trieRoot) {
-        if (trieRoot == nullptr) return;
-        for (int i = 0; i < 26; i++) {
-            freeTrie(trieRoot->next[i]);
-        }
-        delete trieRoot;
+  };
+
+  TrieNode *normTrie, *revTrie;
+
+  void insertWord(string s, int idx, TrieNode *trieRoot) {
+    TrieNode *p = trieRoot;
+    for (string::iterator itr = s.begin(); itr != s.end(); ++itr) {
+      if (p->next[*itr - 'a'] == nullptr) {
+        p->next[*itr - 'a'] = new TrieNode();
+      }
+      p = p->next[*itr - 'a'];
     }
-    
-    bool isPalin(string word) {
-        int wordLen = word.length();
-        for (int i = 0; i < (wordLen + 1) / 2; i++) {
-            if (word[i] != word[wordLen - 1 - i]) return false;
-        }
-        return true;
+    p->idx = idx;
+  }
+
+  bool isPalindrome(string s) {
+    int left = 0, right = s.length() - 1;
+    while (left < right) {
+      if (s[left] != s[right]) return false;
+      left++, right--;
     }
-    
-    vector<vector<int>> palindromePairs(vector<string>& words) {
-        TrieNode *trieRoot;
-        int wordsLen = words.size();
-        set<vector<int>> result;
-        
-        trieRoot = new TrieNode();
-        calcPalindromePairs(words, trieRoot, result, false);
-        freeTrie(trieRoot);
-        
-        for (int i = 0; i < wordsLen; i++) {
-            reverse(words[i].begin(), words[i].end());
-        }
-        trieRoot = new TrieNode();
-        calcPalindromePairs(words, trieRoot, result, true);
-        freeTrie(trieRoot);
-        
-        return vector<vector<int>>(result.begin(), result.end());
+    return true;
+  }
+
+  vector<vector<int>> palindromePairs(vector<string>& words) {
+    int wordNum = words.size();
+    normTrie = new TrieNode(),revTrie = new TrieNode();
+    for (int i = 0; i < wordNum; i++) {
+      insertWord(words[i], i, normTrie);
+      string revWord = words[i];
+      reverse(revWord.begin(), revWord.end());
+      insertWord(revWord, i, revTrie);
     }
-    
-    void calcPalindromePairs(vector<string>& words,
-                             TrieNode *trieRoot,
-                             set<vector<int>>& result,
-                             bool reversed) {
-        // use trie to store all word reverse
-        int wordsLen = words.size();
-        for (int i = 0; i < wordsLen; i++) {
-            string reverseWord = words[i];
-            reverse(reverseWord.begin(), reverseWord.end());
-            insertWord(reverseWord, i, trieRoot);
+    set<vector<int>> resultSet;
+    vector<TrieNode*> roots{normTrie, revTrie};
+    // find reversed word in trie, and reverse them
+    for (vector<TrieNode*>::iterator itr = roots.begin();
+         itr != roots.end(); ++itr) {
+      for (int i = 0; i < wordNum; i++) {
+        string word = words[i];
+        if (*itr == normTrie) reverse(word.begin(), word.end());
+        TrieNode *p = *itr;
+        int idx = 0, wordLen = word.length();
+        if (isPalindrome(word) && p->idx >= 0 && p->idx != i) {
+          resultSet.insert(vector<int>{i, p->idx});
+          resultSet.insert(vector<int>{p->idx, i});
         }
-        
-        // for each word, find it's prefix in trie
-        // only find len(word) > len(trie match) cases
-        for (int i = 0; i < wordsLen; i++) {
-            string word = words[i];
-            int wordLen = word.length();
-            
-            string trieStr;
-            TrieNode *p = trieRoot;
-            // check empty trieStr
-            if (p->idx >= 0) {
-                if (i != p->idx && isPalin(word)) {
-                    if (!reversed) result.insert(vector<int>{i, p->idx});
-                    else result.insert(vector<int>{p->idx, i});
-                }
-            }
-            for (int j = 0; j < wordLen; j++) {
-                // try match
-                if (p->next[word[j] - 'a'] != nullptr) {
-                    trieStr += word[j];
-                    p = p->next[word[j] - 'a'];
-                } else {
-                    // no match of word in trie
-                    break;
-                }
-                if (p->idx >= 0) {
-                    string reverseTrieStr = trieStr;
-                    reverse(reverseTrieStr.begin(), reverseTrieStr.end());
-                    if (i != p->idx && isPalin(word + reverseTrieStr)) {
-                        if (!reversed) result.insert(vector<int>{i, p->idx});
-                        else result.insert(vector<int>{p->idx, i});
-                    }
-                }
-            }
+        while (idx < wordLen) {
+          p = p->next[word[idx] - 'a'];
+          idx++;
+          if (p == nullptr) break;
+          if (p->idx >= 0 && p->idx != i && isPalindrome(word.substr(idx))) {
+            if (*itr == normTrie) resultSet.insert(vector<int>{p->idx, i});
+            else resultSet.insert(vector<int>{i, p->idx});
+          }
         }
+      }
     }
+    return vector<vector<int>>(resultSet.begin(), resultSet.end());
+  }
 };

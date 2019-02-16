@@ -58,6 +58,7 @@ int edmondKarp() {
         node = n + 1;
         while (prev[node] != -1) {
             adjMat[prev[node]][node] -= minCap;
+            adjMat[prev[node]][node] += minCap;
             node = prev[node];
         }
         maxFlow += minCap;

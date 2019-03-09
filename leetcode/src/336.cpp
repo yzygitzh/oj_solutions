@@ -7,25 +7,25 @@ class Solution {
 public:
   class TrieNode {
   public:
-    TrieNode* next[26];
-    int idx;
-    TrieNode() {
-      for (int i = 0; i < 26; i++) next[i] = nullptr;
-      idx = -1;
-    }
+      TrieNode *next[26];
+      int idx;
+      TrieNode() {
+          for (int i = 0; i < 26; i++) next[i] = nullptr;
+          idx = -1;
+      }
   };
 
   TrieNode *normTrie, *revTrie;
 
   void insertWord(string s, int idx, TrieNode *trieRoot) {
-    TrieNode *p = trieRoot;
-    for (string::iterator itr = s.begin(); itr != s.end(); ++itr) {
-      if (p->next[*itr - 'a'] == nullptr) {
-        p->next[*itr - 'a'] = new TrieNode();
+      TrieNode *p = trieRoot;
+      for (auto c : s) {
+          if (p->next[c - 'a'] == nullptr) {
+              p->next[c - 'a'] = new TrieNode();
+          }
+          p = p->next[c - 'a'];
       }
-      p = p->next[*itr - 'a'];
-    }
-    p->idx = idx;
+      p->idx = idx;
   }
 
   bool isPalindrome(string s) {

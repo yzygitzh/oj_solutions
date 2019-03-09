@@ -1,36 +1,51 @@
 class Solution {
 public:
-    void siftDown(vector<int>& nums, int idx, int limit) {
+    void siftUp(vector<int>& nums, int idx) {
         while (true) {
-            int leftIdx = idx * 2 + 1, rightIdx = idx * 2 + 2;
-            int maxIdx = -1;
-            if (leftIdx <= limit) {
-                maxIdx = leftIdx;
-            }
-            if (rightIdx <= limit && nums[leftIdx] < nums[rightIdx]) {
-                maxIdx = rightIdx;
-            }
-            if (maxIdx != -1 && nums[idx] < nums[maxIdx]) {
-                swap(nums[idx], nums[maxIdx]);
-                idx = maxIdx;
-            } else {
+            int parentIdx = (idx - 1) / 2;
+            if (idx == parentIdx || nums[parentIdx] <= nums[idx]) {
                 break;
+            } else {
+                swap(nums[parentIdx], nums[idx]);
+                idx = parentIdx;
             }
         }
     }
     
-    void hSort(vector<int>& nums) {
-        for (int i = nums.size() / 2 - 1; i >= 0; i--) {
-            siftDown(nums, i, nums.size() - 1);
+    void siftDown(vector<int>& nums, int idx, int limit) {
+        while (true) {
+            int leftIdx = 2 * idx + 1, rightIdx = 2 * idx + 2;
+            int minIdx = -1;
+            if (leftIdx <= limit) {
+                minIdx = leftIdx;
+            }
+            if (rightIdx <= limit && nums[rightIdx] < nums[leftIdx]) {
+                minIdx = rightIdx;
+            }
+            if (minIdx == -1 || nums[idx] <= nums[minIdx]) {
+                break;
+            } else {
+                swap(nums[idx], nums[minIdx]);
+                idx = minIdx;
+            }
         }
-        for (int i = nums.size() - 1; i > 0; i--) {
-            swap(nums[0], nums[i]);
-            siftDown(nums, 0, i - 1);
+    }
+    
+    void minHeap(vector<int>& nums, int k) {
+        for (int i = 0; i < nums.size(); i++) {
+            if (i >= k && nums[0] < nums[i]) {
+                // delete heap top
+                swap(nums[0], nums[i]);
+                siftDown(nums, 0, k - 1);
+            } else if (i < k) {
+                // insert element into heap
+                siftUp(nums, i);
+            }
         }
     }
     
     int findKthLargest(vector<int>& nums, int k) {
-        hSort(nums);
-        return nums[nums.size() - k];
+        minHeap(nums, k);
+        return nums[0];
     }
 };

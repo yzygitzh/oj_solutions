@@ -1,7 +1,3 @@
-/*
- * LeetCode 145 Binary Tree Postorder Traversal
- * Morris Traversal
- */
 /**
  * Definition for a binary tree node.
  * struct TreeNode {
@@ -13,29 +9,39 @@
  */
 class Solution {
 public:
-  vector<int> postorderTraversal(TreeNode* root) {
-    vector<int> result;
-    TreeNode *p = root, *tmp;
-    while (p != nullptr) {
-      if (p->right != nullptr) {
-        tmp = p->right;
-        while (tmp->left != nullptr && tmp->left != p) {
-          tmp = tmp->left;
+    vector<int> postorderTraversal(TreeNode* root) {
+        vector<int> result;
+        vector<TreeNode*> nodeStack;
+        // find leftmost element
+        TreeNode *p = root;
+        while (p != nullptr) {
+            nodeStack.push_back(p);
+            p = p->left;
         }
-        if (tmp->left == nullptr) {
-          result.push_back(p->val);
-          tmp->left = p;
-          p = p->right;
-        } else {
-          tmp->left = nullptr;
-          p = p->left;
+        
+        while (!nodeStack.empty()) {
+            p = nodeStack.back();
+            // invariant: top's left has been visited
+            if (p->right != nullptr) {
+                // find top's right's leftmost
+                p = p->right;
+                while (p != nullptr) {
+                    nodeStack.push_back(p);
+                    p = p->left;
+                }
+            } else {
+                // top's right has been visited, now access top
+                result.push_back(p->val);
+                nodeStack.pop_back();
+                // until being some node's left subtree
+                while (!nodeStack.empty() && nodeStack.back()->right == p) {
+                    p = nodeStack.back();
+                    result.push_back(p->val);
+                    nodeStack.pop_back();
+                }
+            }
         }
-      } else {
-        result.push_back(p->val);
-        p = p->left;
-      }
+        
+        return result;
     }
-    reverse(result.begin(), result.end());
-    return result;
-  }
 };

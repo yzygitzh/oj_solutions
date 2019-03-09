@@ -11,9 +11,7 @@ public:
                 currNum *= 10;
             } else {
                 // add last Digit
-                if (currNum >= n) {
-                    currNum /= 10;
-                }
+                if (currNum == n) currNum /= 10;
                 currNum++;
                 while (currNum % 10 == 0) currNum /= 10;
             }

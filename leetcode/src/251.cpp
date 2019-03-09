@@ -1,55 +1,41 @@
 class Vector2D {
 public:
-    vector<vector<int>>* vec2d;
-    vector<vector<int>>::iterator vec2dItr;
-    vector<int>::iterator vecItr;
+    vector<vector<int>> v;
     
-    // invariant: vec2dItr == vec2d->end() or vecItr is valid
-    Vector2D(vector<vector<int>>& _vec2d) {
-        vec2d = &_vec2d;
-        
-        // point to first element
-        vec2dItr = vec2d->begin();
-        move2d();
-        if (vec2dItr != vec2d->end()) {
-            vecItr = vec2dItr->begin();
+    vector<vector<int>>::iterator currRow;
+    vector<int>::iterator currCol;
+    
+    void moveItr() {
+        while (currRow != v.end() && currCol == currRow->end()) {
+            ++currRow;
+            if (currRow == v.end()) break;
+            currCol = currRow->begin();
         }
     }
-
-    // called only when hasNext is true, i.e. vecItr is valid
+    
+    Vector2D(vector<vector<int>> _v) {
+        v = _v;
+        currRow = v.begin();
+        if (currRow == v.end()) return;
+        currCol = currRow->begin();
+        moveItr();
+    }
+    
     int next() {
-        int result = *vecItr;
-        move();
+        int result = *currCol;
+        ++currCol;
+        moveItr();
         return result;
     }
     
-    void move() {
-        // if vec2dItr == vec2d->end, vecItr must be some end.
-        if (vec2dItr != vec2d->end()) {
-            ++vecItr;
-            if (vecItr == vec2dItr->end()) {
-                ++vec2dItr;
-                move2d();
-                if (vec2dItr != vec2d->end()) vecItr = vec2dItr->begin();
-            }
-        }
-    }
-
-    // move to next non-zero-length vector
-    void move2d() {
-        while (vec2dItr != vec2d->end() &&
-               vec2dItr->begin() == vec2dItr->end()) {
-            ++vec2dItr;
-        }
-    }
-
     bool hasNext() {
-        return vec2dItr != vec2d->end();
+        return currRow != v.end() && currCol != currRow->end();
     }
 };
 
 /**
  * Your Vector2D object will be instantiated and called as such:
- * Vector2D i(vec2d);
- * while (i.hasNext()) cout << i.next();
+ * Vector2D* obj = new Vector2D(v);
+ * int param_1 = obj->next();
+ * bool param_2 = obj->hasNext();
  */

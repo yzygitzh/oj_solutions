@@ -1,38 +1,44 @@
 class Solution {
 public:
+    int findParent(int idx, vector<int>& parent) {
+        if (idx != parent[idx]) {
+            parent[idx] = findParent(parent[idx], parent);
+        }
+        return parent[idx];
+    }
+    
+    void unionSet(int idx1, int idx2, vector<int>& parent) {
+        int parent1 = findParent(idx1, parent);
+        int parent2 = findParent(idx2, parent);
+        parent[parent1] = parent2;
+    }
+    
     int numIslands(vector<vector<char>>& grid) {
         int m = grid.size();
         if (m == 0) return 0;
         int n = grid[0].size();
         if (n == 0) return 0;
         
-        int count = 0;
+        vector<int> parent(m * n);
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
+                parent[i * n + j] = i * n + j;
                 if (grid[i][j] == '1') {
-                    dfs(i, j, grid);
-                    count++;
+                    if (i - 1 >= 0 && grid[i - 1][j] == '1') {
+                        unionSet(i * n + j, (i - 1) * n + j, parent);
+                    }
+                    if (j - 1 >= 0 && grid[i][j - 1] == '1') {
+                        unionSet(i * n + j, i * n + j - 1, parent);
+                    }
                 }
             }
         }
-        
-        return count;
-    }
-    
-    void dfs(int row, int col,
-             vector<vector<char> > &grid) {
-        grid[row][col] = 'x';
-        if (row - 1 >= 0 && grid[row - 1][col] == '1') {
-            dfs(row - 1, col, grid);
+        unordered_set<int> parentCnt;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == '1') parentCnt.insert(findParent(i * n + j, parent));
+            }
         }
-        if (row + 1 < grid.size() && grid[row + 1][col] == '1') {
-            dfs(row + 1, col, grid);
-        }
-        if (col - 1 >= 0 && grid[row][col - 1] == '1') {
-            dfs(row, col - 1, grid);
-        }
-        if (col + 1 < grid[0].size() && grid[row][col + 1] == '1') {
-            dfs(row, col + 1, grid);
-        }
+        return parentCnt.size();
     }
 };

@@ -1,8 +1,14 @@
 /*
  * POJ 3087 - Shuffle'm Up
  *
- * Shuffle can be seen as one (or sometimes two) cycle transformations
- * i.e. total state is 2 * C.
+ * The problem is a out perfect shuffle.
+ * The states are bounded by the multiplicative order of 2 (mod 2n + 1)
+ * which can be proved is O(2n).
+ *
+ * If we know that 2^k=1 mod 2n+1, where k is the smallest cycle length of 1,
+ * then we also know that p*2^k=p mod 2n-1, for any p!=1.
+ * So even if p has a shorter cycle k', k' must divide k in order to fulfill this equivalence.
+ * So the order is bounded by 1's cycle length, which is O(2n).
  */
 
 #include <cstdio>

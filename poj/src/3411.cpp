@@ -62,8 +62,8 @@ void dfs(int currCity, int currCost, int currPrepay) {
 
 int main() {
     scanf("%d%d", &N, &M);
-    graph.resize(N);
-    prepay.resize(N);
+    graph.reserve(N);
+    prepay.reserve(N);
     for (int i = 0; i < M; i++) {
         int a, b, c, p, r;
         scanf("%d%d%d%d%d", &a, &b, &c, &p, &r);

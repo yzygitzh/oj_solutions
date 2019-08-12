@@ -24,45 +24,37 @@ using namespace std;
 ifstream fin ("humble.in");
 ofstream fout ("humble.out");
 
-int K, N;
-unsigned long long S[110];
-class Elem {
+class HumbleElem {
 public:
-    unsigned long long base, num;
-    Elem(unsigned long long _base, unsigned long long _num): base(_base), num(_num) {}
-    bool operator< (const Elem& e) const {
-        return num > e.num;
+    int val, idx, factor;
+    HumbleElem(int _val, int _idx, int _factor)
+        : val(_val), idx(_idx), factor(_factor) {}
+    bool operator<(const HumbleElem& h) const {
+        return val > h.val;
     }
 };
-priority_queue<Elem> searchQ;
 
-unsigned long long search() {
+int K, N;
+int S[110];
+int humbles[100010];
+
+int search() { 
+    humbles[0] = 1;
+    priority_queue<HumbleElem> humbleQ;
     for (int i = 0; i < K; i++) {
-        searchQ.push(Elem(S[i], S[i]));
+        humbleQ.push(HumbleElem(S[i], 0, S[i]));
     }
-    bool stopPush = false;
-    unsigned currMax = S[0];
-    int count = 0;
-    for (int i = 0; i < N - 1; i++) {
-        Elem topElem = searchQ.top();
-        // cout << ":" << topElem.num << endl;
-        searchQ.pop();
-        count++;
-        for (int j = 0; j < K; j++) {
-            if (S[j] >= topElem.base) {
-                unsigned long long candidate = topElem.num * S[j]; 
-                if (candidate < (1ULL<<31)) {
-                    if (stopPush && candidate > currMax) break;
-                    searchQ.push(Elem(S[j], candidate));
-                    // cout << candidate << endl;
-                    if (count + searchQ.size() >= N) stopPush = true;
-                    currMax = candidate > currMax ? candidate : currMax;
-                    // cout << "max:" << currMax << endl;
-                }
-            }
+    int humbleIdx = 0;
+    while (humbleIdx < N) {
+        HumbleElem elem = humbleQ.top();
+        humbleQ.pop();
+        if (elem.val > humbles[humbleIdx]) {
+            humbles[++humbleIdx] = elem.val;
         }
+        humbleQ.push(HumbleElem(humbles[elem.idx + 1] * elem.factor,
+                                elem.idx + 1, elem.factor));
     }
-    return searchQ.top().num;
+    return humbles[humbleIdx];
 }
 
 int main() {

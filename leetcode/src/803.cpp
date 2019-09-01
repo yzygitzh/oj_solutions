@@ -1,15 +1,10 @@
-/*
- * LeetCode 803 Bricks Falling When Hit
- * Union Find
- */
-
 class Solution {
 public:
   int m, n;
   vector<int> parent, setSize;
 
   int findParent(int idx) {
-    if (idx != parent[idx]) {
+    if (parent[idx] != idx) {
       parent[idx] = findParent(parent[idx]);
     }
     return parent[idx];
@@ -23,9 +18,9 @@ public:
   int unionSet(int idx1, int idx2) {
     int parent1 = findParent(idx1);
     int parent2 = findParent(idx2);
-    if (parent1 == parent2) return 0;
-    // merge to the wall
-    if (withWall(parent1) && !withWall(parent2)) {
+    if (parent1 == parent2) {
+      return 0;
+    } else if (withWall(parent1) && !withWall(parent2)) {
       parent[parent2] = parent1;
       setSize[parent1] += setSize[parent2];
       return setSize[parent2];

@@ -9,28 +9,32 @@
  */
 class Solution {
 public:
-    int globalMin = 0;
+    // 0: supervised w/o camera, 1: supervised w/ camera, 2: not supervised
     int minCameraCover(TreeNode* root) {
-        if (root == nullptr) return 0;
-        int rootCover = walkTree(root);
-        if (rootCover == 0) globalMin += 1;
-        return globalMin;
+        vector<int> result = walkTree(root);
+        return min(result[0], result[1]);
     }
     
-    // 0: not covered
-    // 1: covered w/ camera
-    // 2: covered w/o camera
-    // 3: nullptr
-    int walkTree(TreeNode *root) {
-        int leftState = 3, rightState = 3;
-        if (root->left != nullptr) leftState = walkTree(root->left);
-        if (root->right != nullptr) rightState = walkTree(root->right);
-        
-        if (leftState == 0 || rightState == 0) {
-            globalMin += 1;
-            return 1;
+    vector<int> walkTree(TreeNode* root) {
+        vector<int> result(3, 0);
+        if (root != nullptr) {
+            vector<int> leftResult = walkTree(root->left);
+            vector<int> rightResult = walkTree(root->right);
+            
+            // root supervised w/o camera
+            result[0] = min(min(leftResult[0] + rightResult[1],
+                                leftResult[1] + rightResult[0]),
+                            leftResult[1] + rightResult[1]);
+            
+            // root supervised w/ camera
+            result[1] = min(min(leftResult[0], leftResult[1]), leftResult[2]) +
+                        min(min(rightResult[0], rightResult[1]), rightResult[2]) + 1;
+            
+            // only root not supervised
+            result[2] = leftResult[0] + rightResult[0];
+        } else {
+            result[1] = 10000;
         }
-        if (leftState >= 2 && rightState >= 2) return 0;
-        return 2;
+        return result;
     }
 };

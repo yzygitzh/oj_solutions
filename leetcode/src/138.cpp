@@ -1,35 +1,49 @@
-/**
- * Definition for singly-linked list with a random pointer.
- * struct RandomListNode {
- *     int label;
- *     RandomListNode *next, *random;
- *     RandomListNode(int x) : label(x), next(NULL), random(NULL) {}
- * };
- */
+/*
+// Definition for a Node.
+class Node {
+public:
+    int val;
+    Node* next;
+    Node* random;
+
+    Node() {}
+
+    Node(int _val, Node* _next, Node* _random) {
+        val = _val;
+        next = _next;
+        random = _random;
+    }
+};
+*/
 class Solution {
 public:
-    RandomListNode *copyRandomList(RandomListNode *head) {
-        if (head == NULL) return head;
-        map<RandomListNode *, RandomListNode *> old2new;
-        RandomListNode *pCurr = head, *newHead = NULL, *newTail = NULL;
-        while (pCurr != NULL) {
-            // create shadow node
-            if (newHead == NULL) {
-                newHead = newTail = new RandomListNode(pCurr->label);
-            } else {
-                newTail->next = new RandomListNode(pCurr->label);
-                newTail = newTail->next;
+    Node* copyRandomList(Node* head) {
+        if (head == nullptr) {
+            return nullptr;
+        }
+        Node* p = head;
+        while (p != nullptr) {
+            Node *newNode = new Node(p->val, p->next, p->random);
+            p->next = newNode;
+            p = newNode->next;
+        }
+        Node *result = head->next;
+        p = head;
+        while (p != nullptr) {
+            if (p->random != nullptr) {
+                p->next->random = p->random->next;
             }
-            old2new[pCurr] = newTail;
-            pCurr = pCurr->next;
+            p = p->next->next;
         }
-        pCurr = head;
-        newTail = newHead;
-        while (pCurr != NULL && newTail != NULL) {
-            newTail->random = old2new[pCurr->random];
-            pCurr = pCurr->next;
-            newTail = newTail->next;
+        p = head;
+        while (p != nullptr) {
+            Node *nextP = p->next->next;
+            if (nextP != nullptr) {
+                p->next->next = nextP->next;
+            }
+            p->next = nextP;
+            p = nextP;
         }
-        return newHead;
+        return result;
     }
 };

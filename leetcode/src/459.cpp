@@ -1,33 +1,32 @@
 class Solution {
 public:
-    int kmp(string p, string t) {
-        int pLen = p.length(), tLen = t.length();
-        // build next
-        vector<int> next(pLen);
+    bool repeatedSubstringPattern(string s) {
+        int sLen = s.length();
+        if (sLen <= 1) return false;
+        string target = s + s;
+        target = target.substr(1, target.length() - 2);
+        int tLen = target.length();
+
+        // do kmp
+        int i, k;
+        vector<int> next(sLen);
         next[0] = -1;
-        int i = 0, k = -1;
-        while (i < pLen) {
-            while (k >= 0 && p[i] != p[k]) k = next[k];
+        // calc next
+        i = 0, k = -1;
+        while (i < sLen) {
+            while (k >= 0 && s[i] != s[k]) k = next[k];
             i++, k++;
-            if (i == pLen) break;
-            if (p[i] == p[k]) next[i] = next[k];
+            if (i == sLen) break;
+            if (s[i] == s[k]) next[i] = next[k];
             else next[i] = k;
         }
-        int j = 0;
-        i = 0;
-        while (i < pLen && j < tLen) {
-            if (i < 0 || p[i] == t[j]) i++, j++;
-            else i = next[i];
+        // do matching, i for target and k for s
+        i = 0, k = 0;
+        while (i < tLen && k < sLen) {
+            while (k >= 0 && target[i] != s[k]) k = next[k];
+            i++, k++;
         }
-        if (i == pLen) return j - pLen;
-        else return -1;
-    }
-    
-    bool repeatedSubstringPattern(string s) {
-        if (s.length() <= 1) return false;
-        string newS = s;
-        newS += s;
-        newS = newS.substr(1, newS.length() - 2);
-        return kmp(s, newS) != -1;
+
+        return k == sLen;
     }
 };

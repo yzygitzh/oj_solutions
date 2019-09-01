@@ -16,14 +16,14 @@ public:
         int leftMax = height[left], rightMax = height[right];
         int water = 0;
         while (left <= right) {
-            if (height[left] <= getMin(leftMax, rightMax)) {
-                water += getMin(leftMax, rightMax) - height[left];
+            leftMax = getMax(leftMax, height[left]);
+            rightMax = getMax(rightMax, height[right]);
+            if (leftMax < rightMax) {
+                water += leftMax - height[left];
                 left++;
-                leftMax = getMax(leftMax, height[left]);
-            } else if (height[right] <= getMin(leftMax, rightMax)) {
-                water += getMin(leftMax, rightMax) - height[right];
+            } else {
+                water += rightMax - height[right];
                 right--;
-                rightMax = getMax(rightMax, height[right]);
             }
         }
         return water;

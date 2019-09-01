@@ -10,38 +10,33 @@
 class Solution {
 public:
     vector<int> postorderTraversal(TreeNode* root) {
+        vector<TreeNode* > nodeStack;
         vector<int> result;
-        vector<TreeNode*> nodeStack;
-        // find leftmost element
         TreeNode *p = root;
         while (p != nullptr) {
             nodeStack.push_back(p);
             p = p->left;
         }
-        
         while (!nodeStack.empty()) {
+            // invariant: top's left sub-tree has been visited
             p = nodeStack.back();
-            // invariant: top's left has been visited
             if (p->right != nullptr) {
-                // find top's right's leftmost
                 p = p->right;
                 while (p != nullptr) {
                     nodeStack.push_back(p);
                     p = p->left;
                 }
             } else {
-                // top's right has been visited, now access top
-                result.push_back(p->val);
-                nodeStack.pop_back();
-                // until being some node's left subtree
-                while (!nodeStack.empty() && nodeStack.back()->right == p) {
+                // both left sub-tree and right sub-tree have been visited
+                p = nullptr;
+                while (!nodeStack.empty() &&
+                       nodeStack.back()->right == p) {
                     p = nodeStack.back();
                     result.push_back(p->val);
                     nodeStack.pop_back();
                 }
             }
         }
-        
         return result;
     }
 };

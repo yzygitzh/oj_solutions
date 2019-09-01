@@ -7,26 +7,25 @@ class Solution {
 public:
   class TrieNode {
   public:
-      TrieNode *next[26];
-      int idx;
-      TrieNode() {
-          for (int i = 0; i < 26; i++) next[i] = nullptr;
-          idx = -1;
-      }
+    TrieNode *next[26];
+    int idx;
+    TrieNode () {
+      for (int i = 0; i < 26; i++) next[i] = nullptr;
+      idx = -1;
+    }
   };
 
-  TrieNode *normTrie, *revTrie;
-
-  void insertWord(string s, int idx, TrieNode *trieRoot) {
-      TrieNode *p = trieRoot;
-      for (auto c : s) {
-          if (p->next[c - 'a'] == nullptr) {
-              p->next[c - 'a'] = new TrieNode();
-          }
-          p = p->next[c - 'a'];
+  void insertWord(string word, int idx, TrieNode* root) {
+    for (auto c : word) {
+      if (root->next[c - 'a'] == nullptr) {
+        root->next[c - 'a'] = new TrieNode();
       }
-      p->idx = idx;
+      root = root->next[c - 'a'];
+    }
+    root->idx = idx;
   }
+
+  TrieNode *normTrie, *revTrie;
 
   bool isPalindrome(string s) {
     int left = 0, right = s.length() - 1;
@@ -74,3 +73,5 @@ public:
     return vector<vector<int>>(resultSet.begin(), resultSet.end());
   }
 };
+
+

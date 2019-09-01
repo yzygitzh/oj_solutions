@@ -1,35 +1,24 @@
 class Solution {
 public:
     bool increasingTriplet(vector<int>& nums) {
-        int numsLen = nums.size();
-        if (numsLen < 3) return false;
-        int currMin = nums[0];
-        
-        bool validTwoSeq = false;
-        int twoSeqEnd;
-        
-        for (int i = 1; i < numsLen; i++) {
-            // invariant: twoSeq.size() == 2 with minimum end
-            
-            // first see if there is valid 3-seq
-            if (validTwoSeq && twoSeqEnd < nums[i]) return true;
-            
-            // second try update twoSeq
-            if (!validTwoSeq) {
-                if (currMin < nums[i]) {
-                    validTwoSeq = true;
-                    twoSeqEnd = nums[i];
-                }
-            } else {
-                if (currMin < nums[i] && nums[i] < twoSeqEnd) {
-                    twoSeqEnd = nums[i];
-                }
-            }
-            
-            // third update currMin
-            if (nums[i] < currMin) currMin = nums[i];
+        if (nums.size() == 0) {
+            return false;
         }
         
+        int k = 3;
+        vector<int> currMin(k + 1, 0x7FFFFFFF); // min end of length k
+        currMin[0] = (1 << 31);
+        
+        for (int i = 0; i < nums.size(); i++) {
+            for (int j = k; j >= 1; j--) {
+                if (currMin[j - 1] < nums[i]) {
+                    currMin[j] = min(currMin[j], nums[i]);
+                }
+            }
+            if (currMin[k] < 0x7FFFFFFF) {
+                return true;
+            }
+        }
         return false;
     }
 };

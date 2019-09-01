@@ -1,70 +1,82 @@
 class NumArray {
 public:
-    class SegTreeNode {
+    class SegNode {
     public:
         int left, right, sum;
-        SegTreeNode *leftChild, *rightChild;
-        SegTreeNode(int _left, int _right, int _sum)
-            : left(_left), right(_right), sum(_sum), leftChild(nullptr), rightChild(nullptr) {}
+        SegNode* leftChild, *rightChild;
+        SegNode(int _left, int _right)
+            : left(_left), right(_right), sum(0),
+              leftChild(nullptr), rightChild(nullptr) {}
     };
     
-    SegTreeNode *segTreeRoot = nullptr;
+    SegNode *segRoot;
     
-    SegTreeNode *buildSegTree(vector<int>& nums, int left, int right) {
+    SegNode *buildSeg(int left, int right, vector<int>& nums) {
+        SegNode *result = new SegNode(left, right);
         if (left == right) {
-            return new SegTreeNode(left, right, nums[left]);
+            result->sum = nums[left];
         } else {
-            int mid = (left + right) / 2;
-            SegTreeNode *result = new SegTreeNode(left, right, 0);
-            result->leftChild = buildSegTree(nums, left, mid);
-            result->rightChild = buildSegTree(nums, mid + 1, right);
+            int mid = left + (right - left) / 2;
+            result->leftChild = buildSeg(left, mid, nums);
+            result->rightChild = buildSeg(mid + 1, right, nums);
             result->sum = result->leftChild->sum + result->rightChild->sum;
-            return result;
         }
+        return result;
     }
     
-    void updateTree(SegTreeNode *p, int idx, int val) {
+    void updateSeg(SegNode *p, int idx, int val) {
         if (p->left == p->right && p->left == idx) {
             p->sum = val;
         } else {
-            int mid = (p->left + p->right) / 2;
-            if (idx <= mid) updateTree(p->leftChild, idx, val);
-            else updateTree(p->rightChild, idx, val);
+            int mid = p->left + (p->right - p->left) / 2;
+            if (idx <= mid) updateSeg(p->leftChild, idx, val);
+            else updateSeg(p->rightChild, idx, val);
             p->sum = p->leftChild->sum + p->rightChild->sum;
         }
     }
     
-    int rangeSumTree(SegTreeNode *p, int left, int right) {
-        if (p->left == left && p->right == right) {
+    int querySeg(SegNode *p, int left, int right) {
+        if (left == p->left && right == p->right) {
             return p->sum;
         } else {
-            int mid = (p->left + p->right) / 2;
+            int mid = p->left + (p->right - p->left) / 2;
             int result = 0;
-            if (left <= mid) result += rangeSumTree(p->leftChild, left, min(mid, right));
-            if (right >= mid + 1) result += rangeSumTree(p->rightChild, max(mid + 1, left), right);
+            if (left <= mid) {
+                result += querySeg(p->leftChild, left, min(mid, right));
+            }
+            if (right >= mid + 1) {
+                result += querySeg(p->rightChild, max(mid + 1, left), right);
+            }
             return result;
         }
     }
     
-    NumArray(vector<int> nums) {
-        if (nums.size() == 0) return;
-        segTreeRoot = buildSegTree(nums, 0, nums.size() - 1);
+    NumArray(vector<int>& nums) {
+        if (nums.size() == 0) {
+            segRoot = nullptr;
+        } else {
+            segRoot = buildSeg(0, nums.size() - 1, nums);
+        }
     }
     
     void update(int i, int val) {
-        if (segTreeRoot == nullptr) return;
-        updateTree(segTreeRoot, i, val);
+        if (segRoot != nullptr) {
+            updateSeg(segRoot, i, val);
+        }
     }
     
     int sumRange(int i, int j) {
-        if (segTreeRoot == nullptr) return 0;
-        return rangeSumTree(segTreeRoot, i, j);
+        if (segRoot == nullptr) {
+            return 0;
+        } else {
+            return querySeg(segRoot, i, j);
+        }
     }
 };
 
 /**
  * Your NumArray object will be instantiated and called as such:
- * NumArray obj = new NumArray(nums);
- * obj.update(i,val);
- * int param_2 = obj.sumRange(i,j);
+ * NumArray* obj = new NumArray(nums);
+ * obj->update(i,val);
+ * int param_2 = obj->sumRange(i,j);
  */

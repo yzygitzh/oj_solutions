@@ -1,83 +1,75 @@
 class LFUCache {
 public:
-    class RListNode {
+    class Entry {
     public:
         int key, value;
-        RListNode(int _key, int _value): key(_key), value(_value) {}
+        Entry(int _key, int _value): key(_key), value(_value) {}
     };
     
-    class FListNode {
+    class FreqToEntries {
     public:
         int freq;
-        list<RListNode> RList;
-        FListNode(int _freq): freq(_freq), RList() {}
+        list<Entry> entries;
+        FreqToEntries(int _freq): freq(_freq) {}
     };
     
-    list<FListNode> FList;
-    unordered_map<int, list<RListNode>::iterator> keyToEntry;
-    unordered_map<int, list<FListNode>::iterator> keyToFListPtr;
-    int capacity, maxCapacity;
+    unordered_map<int, list<Entry>::iterator> keyToEntryItr;
+    unordered_map<int, list<FreqToEntries>::iterator> keyToFreqToEntriesItr;
+    list<FreqToEntries> freqList;
+    int capacity, size;
     
     LFUCache(int _capacity) {
-        maxCapacity = _capacity;
-        capacity = 0;
+        capacity = _capacity;
+        size = 0;
     }
     
     int get(int key) {
-        if (maxCapacity == 0 || !keyToEntry.count(key)) {
+        if (capacity == 0 || keyToEntryItr.find(key) == keyToEntryItr.end()) {
             return -1;
         } else {
-            auto entryP = keyToEntry[key];
-            auto freqP = keyToFListPtr[key];
-            // remove entry from origin freq node
-            RListNode entry = *entryP;
-            freqP->RList.erase(entryP);
-            // add new node for freq + 1 if not exist or not consecutive
-            if (next(freqP, 1) == FList.end() ||
-                next(freqP, 1)->freq != freqP->freq + 1) {
-                FList.insert(next(freqP, 1), FListNode(freqP->freq + 1));
+            auto entryItr = keyToEntryItr[key];
+            auto freqToEntriesItr = keyToFreqToEntriesItr[key];
+            if (next(freqToEntriesItr, 1) == freqList.end() ||
+                next(freqToEntriesItr, 1)->freq > freqToEntriesItr->freq + 1) {
+                freqList.insert(next(freqToEntriesItr, 1),
+                                FreqToEntries(freqToEntriesItr->freq + 1));
             }
-            ++freqP;
-            // delete origin freqP if empty
-            if (prev(freqP, 1)->RList.empty()) {
-                FList.erase(prev(freqP, 1));
+            auto newFreqToEntriesItr = next(freqToEntriesItr, 1);
+            newFreqToEntriesItr->entries.push_back(*entryItr);
+            keyToEntryItr[key] = prev(newFreqToEntriesItr->entries.end(), 1);
+            keyToFreqToEntriesItr[key] = newFreqToEntriesItr;
+            freqToEntriesItr->entries.erase(entryItr);
+            if (freqToEntriesItr->entries.empty()) {
+                freqList.erase(freqToEntriesItr);
             }
-            // insert entry into new freq node
-            freqP->RList.push_back(entry);
-            // update keyTo*
-            keyToEntry[key] = prev(freqP->RList.end(), 1);
-            keyToFListPtr[key] = freqP;
-            return entry.value;
+            return newFreqToEntriesItr->entries.back().value;
         }
     }
     
     void put(int key, int value) {
-        if (maxCapacity == 0) return;
-        if (!keyToEntry.count(key)) {
-            if (capacity == maxCapacity) {
-                // do evit
-                auto RHead = FList.begin()->RList.begin();
-                int evitKey = RHead->key;
-                FList.begin()->RList.erase(keyToEntry[evitKey]);
-                keyToEntry.erase(evitKey);
-                if (FList.begin()->RList.empty()) {
-                    FList.erase(FList.begin());
+        if (capacity == 0) {
+            return;
+        } else if (keyToEntryItr.find(key) == keyToEntryItr.end()) {
+            if (size == capacity) {
+                int keyToEvict = freqList.front().entries.front().key;
+                freqList.front().entries.erase(keyToEntryItr[keyToEvict]);
+                if (freqList.front().entries.empty()) {
+                    freqList.erase(freqList.begin());
                 }
-                capacity--;
+                keyToEntryItr.erase(keyToEvict);
+                keyToFreqToEntriesItr.erase(keyToEvict);
+                size--;
             }
-            // do insert
-            RListNode entry(key, value);
-            if (FList.empty() || FList.begin()->freq != 1) {
-                FList.push_front(FListNode(1));
+            if (freqList.empty() || freqList.front().freq != 1) {
+                freqList.push_front(FreqToEntries(1));
             }
-            FList.begin()->RList.push_back(entry);
-            // update keyTo*
-            keyToEntry[key] = prev(FList.begin()->RList.end(), 1);
-            keyToFListPtr[key] = FList.begin();
-            capacity++;
+            freqList.front().entries.push_back(Entry(key, value));
+            keyToEntryItr[key] = prev(freqList.front().entries.end(), 1);
+            keyToFreqToEntriesItr[key] = freqList.begin();
+            size++;
         } else {
-            auto entryP = keyToEntry[key];
-            entryP->value = value;
+            auto entryItr = keyToEntryItr[key];
+            entryItr->value = value;
             get(key);
         }
     }
@@ -85,7 +77,7 @@ public:
 
 /**
  * Your LFUCache object will be instantiated and called as such:
- * LFUCache obj = new LFUCache(capacity);
- * int param_1 = obj.get(key);
- * obj.put(key,value);
+ * LFUCache* obj = new LFUCache(capacity);
+ * int param_1 = obj->get(key);
+ * obj->put(key,value);
  */

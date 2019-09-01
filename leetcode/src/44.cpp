@@ -21,7 +21,7 @@ public:
                     F[sIdx % 2][pIdx] |= F[(sIdx - 1) % 2][pIdx - 1];
                 }
 
-                if (p[pIdx - 1] == '\*') {
+                if (p[pIdx - 1] == '*') {
                     F[sIdx % 2][pIdx] |= F[sIdx % 2][pIdx - 1];
                     F[sIdx % 2][pIdx] |= F[(sIdx - 1) % 2][pIdx];
                 }

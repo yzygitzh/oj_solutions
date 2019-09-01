@@ -1,26 +1,26 @@
 class Solution {
 public:
-    long long findGap(long long n, long long low) {
-        long long gap = 0, high = low + 1;
-        while (low <= n) {
-            gap += min(n + 1, high) - low;
-            low *= 10;
-            high *= 10;
+    long long findSubtreeSize(long long node, long long limit) {
+        long long result = 0, layerCnt = 1;
+        while (node <= limit) {
+            result += min(limit - node + 1, layerCnt);
+            node *= 10;
+            layerCnt *= 10;
         }
-        return gap;
+        return result;
     }
     
     int findKthNumber(int n, int k) {
         int result = 1;
-        k -= 1;
-        while (k > 0) {
-            long long gap = findGap(n, result);
-            if ((long long)k >= gap) {
-                result++;
-                k -= (int)gap;
-            } else {
+        long long lK = k - 1;
+        while (lK > 0) {
+            long long subsize = findSubtreeSize(result, n);
+            if (subsize > lK) {
                 result *= 10;
-                k -= 1;
+                lK -= 1;
+            } else {
+                result += 1;
+                lK -= subsize;
             }
         }
         return result;

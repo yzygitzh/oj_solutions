@@ -1,22 +1,12 @@
 class Solution {
 public:
-    int exGcd(int a, int b, int& x, int &y) {
-        if (a < b) return exGcd(b, a, y, x);
-        if (b == 0) {
-            x = 1;
-            y = 0;
-            return a;
-        }
-        int gcd = exGcd(b, a % b, y, x);
-        y -= (a / b) * x;
-        return gcd;
+    int gcd(int a, int b) {
+        return b == 0 ? a : gcd(b, a % b);
     }
     
     bool canMeasureWater(int a, int b, int z) {
         if (z == 0) return true;
         if (a + b < z) return false;
-        int x, y;
-        int gcd = exGcd(a, b, x, y);
-        return !(z % gcd);
+        return !(z % gcd(a, b));
     }
 };
